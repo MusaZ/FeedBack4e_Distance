@@ -2,10 +2,11 @@
 
 public class IATAError
 {
-  public List<Errors> errors { get; set; } 
+  public List<Errors> errors { get; set; }
 }
 public class Errors
-{
+{  
+  public string message { get; set; }
   public string value { get; set; }
   public string msg { get; set; }
   public string param { get; set; }

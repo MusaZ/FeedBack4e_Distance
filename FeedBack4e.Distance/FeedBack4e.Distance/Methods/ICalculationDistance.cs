@@ -23,14 +23,16 @@ public class CalculationDistance : ICalculationDistance
   public Location _Location2 { get; set; }
   public double Distance_KM { get; set; }
   public double Distance_Miles { get; set; }
-
-  private double Distance_Stp1, Distance_Stp2;
-  private double Lat1_Rad, Lat2_Rad,DeltaLat_Rad,DeltaLon_Rad;
-
-  private DistanceClss _distanceRESULT;
+    
   //-------------------------------------------------------------------------------------------------------------------
   public DistanceClss Calculate()
   {
+		#region VARIABLES
+		double Distance_Stp1, Distance_Stp2;
+	  double Lat1_Rad, Lat2_Rad, DeltaLat_Rad, DeltaLon_Rad;
+		DistanceClss _distanceRESULT;
+    #endregion
+
     try
     {
       Lat1_Rad = _Location1.lat * PI / 180;

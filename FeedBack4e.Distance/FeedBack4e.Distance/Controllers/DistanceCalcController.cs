@@ -12,52 +12,52 @@ namespace FeedBack4e.Distance.Controllers;
 public class DistanceCalcController : ControllerBase
 {
   private IServiceProvider _iServiceProvider;
+  private IRepository _repository;
   
-  private HttpResponseMessage airport1_data, airport2_data;
-
-  private HttpClient httpclient = new HttpClient();
-  
-  private string? airport1_response_STR, airport2_response_STR;
-  private readonly string baseIATA = "https://places-dev.cteleport.com/airports/";
-  //------------------------------------------------------------------------------------------------------------------
-  public DistanceCalcController(IServiceProvider iserviceprovider)
-  {
-    _iServiceProvider = iserviceprovider;
+	//------------------------------------------------------------------------------------------------------------------
+	public DistanceCalcController(IServiceProvider iserviceprovider, IRepository repository)
+	{
+		_iServiceProvider = iserviceprovider;
+    _repository = repository;
   }
 
-  //------------------------------------------------------------------------------------------------------------------
-  [HttpGet("Calculation")]
-  public async Task<string> Calculation_Distanceasync([Required]string firstAIRPORT, [Required]string secondAIRPORT)
+	//------------------------------------------------------------------------------------------------------------------
+	[HttpGet("Calculation")]
+  public async Task<string> Calculation_Distanceasync([Required]string firstAirport, [Required]string secondAirport)
   {
-    try {
-      airport1_data = await httpclient.GetAsync($"{baseIATA}{firstAIRPORT}");
-      airport2_data = await httpclient.GetAsync($"{baseIATA}{secondAIRPORT}");
+    #region VARIABLES
+    HttpClient httpclient = new HttpClient();
+    #endregion
+    
+    try
+    {
+      string airport1ResponseStr = await _repository.GetDataAsync(firstAirport);
+      string airport2ResponseStr = await _repository.GetDataAsync(secondAirport);
 
-      airport1_response_STR = await airport1_data.Content.ReadAsStringAsync();
-      airport2_response_STR = await airport2_data.Content.ReadAsStringAsync();
-
-      if (airport1_response_STR.IndexOf("lon") + airport2_response_STR.IndexOf("lon") > -1)
+      if (airport1ResponseStr.IndexOf("lon", StringComparison.Ordinal) != -1 && 
+          airport2ResponseStr.IndexOf("lon", StringComparison.Ordinal) != -1)
       {
         DistanceProcess distanceProcess = new()
         {
           _iServiceProvider = _iServiceProvider,
-          airport1_response_STR = airport1_response_STR,
-          airport2_response_STR = airport2_response_STR
+          airport1_response_STR = airport1ResponseStr,
+          airport2_response_STR = airport2ResponseStr
         };
         return await distanceProcess.Processasync();
       }
-      else if (airport1_response_STR.IndexOf("errors") + airport2_response_STR.IndexOf("errors") > -1)
+      else if (airport1ResponseStr.IndexOf("errors", StringComparison.Ordinal) != -1 || 
+               airport2ResponseStr.IndexOf("errors", StringComparison.Ordinal) != -1)
       {
-        HandleError handleError = new() { airport1_response_STR = airport1_response_STR };
-        return await handleError.Handleasync();
+        HandleError handleError = new() { airport1_response_STR = airport1ResponseStr };
+				return await handleError.Handleasync();
       }
-      else 
-        return await Task.FromResult(airport1_response_STR);
+      else
+				return await Task.FromResult(airport1ResponseStr);      
     }
     catch (Exception e) {
-      Hata _hata = new() { _Mesaj = $"{e.Message}", _StackTrace = $"{e.StackTrace}"};
+      Hata hata = new() { _Mesaj = $"{e.Message}", _StackTrace = $"{e.StackTrace}"};
       
-      return await Task.FromResult(JsonConvert.SerializeObject(_hata));
+      return await Task.FromResult(JsonConvert.SerializeObject(hata));
     }
   }
 }
