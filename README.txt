@@ -1,0 +1,1 @@
+This Web (API) Servis Calculates Distance between given Two Airport Location by IATA Airport code as Kilomete and Miles and return JSON format.

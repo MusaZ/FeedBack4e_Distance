@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\FeedBack4e.Distance.props" />
+</Project>
